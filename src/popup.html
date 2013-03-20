@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Forget Me Knot!</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script src="common.js"></script>
+        <script src="popup.js"></script>
+        <script src="jquery/jquery.min.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div>
+            <div id="header_left">
+                <img id="fmk_icon" title="Forget Me Knot!" src="images/icon-38.png"/>
+            </div>
+            <div id="header_mid">    
+            <h1>Forget Me Knot!</h1><br/>
+            <p id="sub_title">Remind me next time I'm on this site to...</p>
+            </div>
+            <div id="header_right">
+                <div id="settings_button" class="button">
+                    <a href="options.html" target="_new" title="Settings TODO: make a different icon for this"><img class="image_button" src="images/question.png"/></a>
+                </div>
+                <div id="twitter_button" class="button">
+                    <a href="https://twitter.com/daynemay/" target="_new" title="Problems? Suggestions? Feedback?"><img class="image_button" src="images/twitter.png"/></a>
+                </div>
+            </div>
+    </div>
+    <div id="table_holder">
+
+        <table id="reminders_table">
+        <thead>
+                    <!-- This hidden row will keep the widths as they should be even when there are no "real" rows in the table -->
+            <tr id="dummy_row">
+                <td><div class="display_match_type" id="display_match_type_dummy"></div></td>
+                <td><div class="display_match" id="display_match_dummy"></div></td>
+                <td><div class="display_text" id="display_text_dummy"></div></td>
+                <td><div class="display_title" id="display_title_dummy"></div></td>
+                <td><div class="display_frequency" id="display_frequency_dummy"/></div>&nbsp;<div class="display_freq_type" id="select_freq_type_dummy"></div></td>
+            </tr>
+            <tr>
+                <th id="th_match">Match</th>
+                <th id="th_pattern">Pattern</th>
+                <th id="th_title">Title</th>
+                <th id="th_reminder_text">Reminder</th>
+                <th id="th_reminder_title">Title</th>
+                <th id="th_max_frequency">Max Frequency</th>
+                <!--th>Expiry</th-->
+            </tr></thead>
+        </table>
+
+    </div>
+
+    </body>
+</html>

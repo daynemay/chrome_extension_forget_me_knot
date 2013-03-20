@@ -1,0 +1,71 @@
+    body {
+      /* overflow: hidden; */
+      margin: 10px;
+      padding: 0px;
+      background: white;
+      font-family: Tahoma, Helvetica, sans-serif;
+      width: 50em;
+    }
+
+    #body_options { margin-top: 3em; margin-left: auto; margin-right: auto; }
+
+    #reminders_table {
+        width: 100%;
+        margin-top: -1.8em;
+        border-collapse: collapse;
+    }
+
+    #reminders_table tr {
+        border-radius: 5px;
+    }
+
+    #reminders_table tr.pendingDelete {
+        background-color: rgba(255, 0, 0, 0.1);a
+        border: thick solid black;
+    }
+
+    #reminders_table tr.pendingDelete td {
+/*         background-color: rgba(0,0,0,0);  */
+    }
+
+    #header_left { float: left; width: 7% }
+    #header_mid { float: left; width 60% }
+    #header_right { float: right; width: 12% }
+
+    #help_text { clear: both; padding-top: 1em; padding-bottom: 1em; }
+    #got_it { float: right; }
+    .small_link { font-size: smaller; }
+
+    #table_holder { float: left; clear: both; }
+
+    h1 { font-size: 11pt; float: left; margin: 0px; }
+    #sub_title { 
+        color: #979CA0; 
+        font-size: 10pt; 
+        float: left; 
+        clear : both; 
+        margin: 0px;
+    }
+
+    th { 
+    	font-size: smaller; 
+        text-align: left;
+    }
+
+    #fmk_icon { float: left; }
+    #twitter_icon, #button_restore_help { float: right; }
+
+
+    .small_image_button { width: 20px; height: 20px; padding: 2px; }
+    .image_button { width: 38px; height: 38px; }
+    .button { display: inline-block; border: thin solid rgba(0,0,0,0); border-radius: 5px; }
+    .button:hover { 
+        /* background-color: rgba(0,0,0,0.1);  */
+        border: thin solid black;
+    }
+
+    .input_match { width: 10em; }
+    .input_title { width: 8em; }
+    .input_expiry { width: 7em; }
+    .input_frequency { width: 4em; }
+    #dummy_row { visibility: hidden; }
