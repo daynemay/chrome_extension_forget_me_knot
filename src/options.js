@@ -55,27 +55,24 @@ function makeTableRow(table, id)
     // Bind remove button to delete ID
     $('.button_remove').unbind('click');
     $('.button_remove').click(function(){
-    // Get ID based on button_remove ID (everything after "button_remove_")
-        var id = $(this).attr("id").substring(14);
+        // Get reminder ID based on button_remove_ID
+	var id = parseReminderID($(this).attr("id"), "button_remove_");
         reminders[id].deleted = true;
         var row_id = "#row_" + id;
         $(row_id).hide("slow");
         // TODO: Consolidate these two lines into a function?
-        console.log("reminders before");
-        console.log(reminders);
+        console.log("reminders before", reminders);
         getRemindersFromTable($("#reminders_table"));
-        console.log("reminders after get");
-        console.log(reminders);
+        console.log("reminders after get", reminders);
 
         chrome.storage.sync.set({'SiteReminders': reminders, 'Reload': true}, function(){});
     });
     $('.button_remove').hover(function(){
-        // TODO: Change this to a function that takes an element and the string to remove, e.g. getId($(this), "button_remove_")
-        var id = $(this).attr("id").substring(14);
+        var id = parseReminderID($(this).attr("id"), 'button_remove_');
         var row_id = "#row_" +id;
         $(row_id).addClass("pendingDelete");
     }, function() {
-        var id = $(this).attr("id").substring(14);
+        var id = parseReminderID($(this).attr("id"), 'button_remove_');
         var row_id = "#row_" +id;
         $(row_id).removeClass("pendingDelete");
     });
@@ -84,17 +81,18 @@ function makeTableRow(table, id)
     $(".save").unbind("change");
     $(".save").bind("change", function(){
         // TODO: Consolidate these two lines into a function?
+        console.log(111);
         getRemindersFromTable($("#reminders_table"));
-        console.log("saving");
-        console.log(reminders);
+        console.log(222);
+        console.log("saving", reminders);
         chrome.storage.sync.set({'SiteReminders': reminders, 'Reload': true}, function(){});
     });
 
     // Change tooltip of 'get current' button and reminder text based on match type
     $('.select_match_type').unbind('change');
     $('.select_match_type').change(function(){
-    // Get ID based on select_match_type ID (everything after "button_get_crrent_")
-        var id = $(this).attr("id").substring(18);
+        // Get reminder ID based on select_match_type_ID
+        var id = parseReminderID($(this).attr('id'), 'select_match_type_');
         $("#button_get_current_" + id).attr("title", "Get " + $(this).val() + " of currently selected tab");
         $("#input_text_" + id).attr("title", "Reminder to pop up for matching " + $(this).val() + "s");
     });
@@ -104,8 +102,10 @@ function makeTableRow(table, id)
         // Bind "get current" button to get current URL or title
         $('.button_get_current').unbind('click');
         $('.button_get_current').click(function(){
-        // Get reminder ID based on button_get_current ID (everything after "button_get_current_")
-        var id = $(this).attr("id").substring(19);
+
+        // Get reminder ID based on button_get_current_ID 
+        var id = parseReminderID($(this).attr('id'), 'button_get_current_');
+
         var matchType = $("#select_match_type_" + id).val();
 
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
@@ -180,8 +180,10 @@ function init(){
         // Reuse empty rows, rather than adding again.
         if(empty_row)
         {
-            // Strip "input_match_" off the front
-            id = $('#reminders_table tr:last .input_match').attr("id").substring(10);
+            // Get ID of empty input_match in empty last row
+            var input_match_id = $('#reminders_table tr:last .input_match').attr("id");
+            // Get reminder ID based on input_match_ID 
+            id = parseReminderID(input_match_id, 'input_match_');
         }
         else
         {
@@ -198,9 +200,10 @@ function init(){
         $("#input_frequency_" + id).val(30);
         $("#select_freq_type_" + id).val(60); // i.e. minutes
 
-        // TODO: Make this work for non-new rows 
         // Go into the row
         $("#input_text_" + id).focus();
+
+	// TODO: Show a tooltip or similar if you're being prompted to edit existing empty rather than create new
 
     });
 
@@ -215,7 +218,8 @@ function getRemindersFromTable(table)
         // Ignore header row
         if (rows[i].id.substring(0, 4) != 'row_') { continue; }
 
-        id = rows[i].id.substring(4);
+        // Get reminder ID based on row_ID 
+        id = parseReminderID(rows[i].id, 'row_'); 
 
         if (id in reminders && reminders[id].deleted)
         {
@@ -241,4 +245,3 @@ function getRemindersFromTable(table)
     }
 
 }
-

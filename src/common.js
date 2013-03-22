@@ -14,6 +14,13 @@ function generateGuid() {
   return result;
 }
 
+/*  If my_input_id is "input_match_1234", then:
+        parseReminderID(my_input.attr("id"), "input_match_") 
+   should yield the reminder ID "1234" */
+function parseReminderID(other_id, prefix) {
+    return other_id.substring(prefix.length);
+}
+
 /* multipliers is a dictionary of int:name
  * 1: second
  * 60: minute
