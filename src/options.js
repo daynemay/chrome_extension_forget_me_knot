@@ -52,26 +52,32 @@ var ForgetMeKnot = {
 	    // Bind remove button to delete ID
 	    $('.button_remove').unbind('click');
 	    $('.button_remove').click(function(){
-		// Get reminder ID based on button_remove_ID
-		var id = parseReminderID($(this).attr("id"), "button_remove_");
-		ForgetMeKnot.reminders[id].deleted = true;
-		var row_id = "#row_" + id;
-		$(row_id).hide("slow");
-		// TODO: Consolidate these two lines into a function?
-		console.log("reminders before", ForgetMeKnot.reminders);
-		ForgetMeKnot.getRemindersFromTable($("#reminders_table"));
-		console.log("reminders after get", ForgetMeKnot.reminders);
+    		// Get reminder ID based on button_remove_ID
+    		var id = parseReminderID($(this).attr("id"), "button_remove_");
+    		$(row_id).hide("slow");
+    
+            // TODO: Consolidate these two lines into a function?
+    		console.log("reminders before", ForgetMeKnot.reminders);
+    		ForgetMeKnot.getRemindersFromTable($("#reminders_table"));
+    		console.log("reminders after get", ForgetMeKnot.reminders);
 
-		chrome.storage.sync.set({'SiteReminders': ForgetMeKnot.reminders, 'Reload': true}, function(){});
+        	ForgetMeKnot.reminders[id].deleted = true;
+    		var row_id = "#row_" + id;
+
+    		chrome.storage.sync.set({'SiteReminders': ForgetMeKnot.reminders, 'Reload': true}, function(){});
 	    });
-	    $('.button_remove').hover(function(){
-		var id = parseReminderID($(this).attr("id"), 'button_remove_');
-		var row_id = "#row_" +id;
-		$(row_id).addClass("pendingDelete");
-	    }, function() {
-		var id = parseReminderID($(this).attr("id"), 'button_remove_');
-		var row_id = "#row_" +id;
-		$(row_id).removeClass("pendingDelete");
+        
+        // When hovering over "remove" buttons, highlight the row that will be deleted
+	    $('.button_remove').hover(
+            function(){ // Hover in function
+        		var id = parseReminderID($(this).attr("id"), 'button_remove_');
+        		var row_id = "#row_" +id;
+        		$(row_id).addClass("pendingDelete");
+    	    }, 
+            function() { // Hover out function
+        		var id = parseReminderID($(this).attr("id"), 'button_remove_');
+        		var row_id = "#row_" +id;
+        		$(row_id).removeClass("pendingDelete");
 	    });
 
 	    // Save whenever anything changes
@@ -207,39 +213,38 @@ var ForgetMeKnot = {
 
     getRemindersFromTable: function (table)
     {
-	    var rows = table.get(0).rows;
+        var rows = table.get(0).rows;
 
-	    for(var i=0; i<rows.length; i++)
-	    { 
-		// Ignore header row
-		if (rows[i].id.substring(0, 4) != 'row_') { continue; }
+        for(var i=0; i<rows.length; i++)
+        { 
+	        // Ignore header row
+            if (rows[i].id.substring(0, 4) != 'row_') { continue; }
 
-		// Get reminder ID based on row_ID 
-		id = parseReminderID(rows[i].id, 'row_'); 
+            // Get reminder ID based on row_ID 
+		    id = parseReminderID(rows[i].id, 'row_'); 
 
-		if (id in ForgetMeKnot.reminders && ForgetMeKnot.reminders[id].deleted)
-		{
-		    console.log("deleting a reminder" + id);
-		    delete ForgetMeKnot.reminders[id];
-		    continue;
-		}
+    		if (id in ForgetMeKnot.reminders && ForgetMeKnot.reminders[id].deleted)
+    		{
+    		    console.log("deleting a reminder" + id);
+    		    delete ForgetMeKnot.reminders[id];
+    		    continue;
+    		}
 
-		// Create new reminder
-		if(!(id in ForgetMeKnot.reminders))
-		{
-		    ForgetMeKnot.reminders[id] = {};
-		    ForgetMeKnot.reminders[id]['id'] = id;
-		}
+    		// Create new reminder
+    		if(!(id in ForgetMeKnot.reminders))
+    		{
+    		    ForgetMeKnot.reminders[id] = {};
+    		    ForgetMeKnot.reminders[id]['id'] = id;
+    		}
 
-		ForgetMeKnot.reminders[id]['reminderText'] = $("#input_text_" + id).val();
-		ForgetMeKnot.reminders[id]['reminderTitle'] = $("#input_title_" + id).val();
-		ForgetMeKnot.reminders[id]['matchPattern'] = $("#input_match_" + id).val();
-		ForgetMeKnot.reminders[id]['maxFrequency'] = $("#input_frequency_" + id).val();
-		ForgetMeKnot.reminders[id]['freqMultiplier'] = $("#select_freq_type_" + id).val();
-		ForgetMeKnot.reminders[id]['matchType'] = $("#select_match_type_" + id).val();
+    		ForgetMeKnot.reminders[id]['reminderText'] = $("#input_text_" + id).val();
+    		ForgetMeKnot.reminders[id]['reminderTitle'] = $("#input_title_" + id).val();
+    		ForgetMeKnot.reminders[id]['matchPattern'] = $("#input_match_" + id).val();
+    		ForgetMeKnot.reminders[id]['maxFrequency'] = $("#input_frequency_" + id).val();
+    		ForgetMeKnot.reminders[id]['freqMultiplier'] = $("#select_freq_type_" + id).val();
+    		ForgetMeKnot.reminders[id]['matchType'] = $("#select_match_type_" + id).val();
 	    
 	    }
-
 	}
 }
 
