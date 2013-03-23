@@ -57,14 +57,15 @@ var ForgetMeKnot = {
     
             // TODO: Consolidate these two lines into a function?
     		console.log("reminders before", ForgetMeKnot.reminders);
-    		ForgetMeKnot.getRemindersFromTable($("#reminders_table"));
+    		// TODO: Is this necessary? ForgetMeKnot.getRemindersFromTable($("#reminders_table"));
     		console.log("reminders after get", ForgetMeKnot.reminders);
 
         	ForgetMeKnot.reminders[id].deleted = true;
     		var row_id = "#row_" + id;
     		$(row_id).hide("slow");
+            $("#button_remove_" +id).change();
 
-    		chrome.storage.sync.set({'SiteReminders': ForgetMeKnot.reminders, 'Reload': true}, function(){});
+    		// TODO: Does the button_remove.change() above get rid of the need for this? chrome.storage.sync.set({'SiteReminders': ForgetMeKnot.reminders, 'Reload': true}, function(){});
 	    });
         
         // When hovering over "remove" buttons, highlight the row that will be deleted
@@ -243,7 +244,7 @@ var ForgetMeKnot = {
     		ForgetMeKnot.reminders[id]['maxFrequency'] = $("#input_frequency_" + id).val();
     		ForgetMeKnot.reminders[id]['freqMultiplier'] = $("#select_freq_type_" + id).val();
     		ForgetMeKnot.reminders[id]['matchType'] = $("#select_match_type_" + id).val();
-	    
+
 	    }
 	}
 }
@@ -252,3 +253,4 @@ var ForgetMeKnot = {
 if (document.addEventListener) {
     document.addEventListener("DOMContentLoaded", ForgetMeKnot.init, false);
 }
+
