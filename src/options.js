@@ -54,7 +54,6 @@ var ForgetMeKnot = {
 	    $('.button_remove').click(function(){
     		// Get reminder ID based on button_remove_ID
     		var id = parseReminderID($(this).attr("id"), "button_remove_");
-    		$(row_id).hide("slow");
     
             // TODO: Consolidate these two lines into a function?
     		console.log("reminders before", ForgetMeKnot.reminders);
@@ -63,6 +62,7 @@ var ForgetMeKnot = {
 
         	ForgetMeKnot.reminders[id].deleted = true;
     		var row_id = "#row_" + id;
+    		$(row_id).hide("slow");
 
     		chrome.storage.sync.set({'SiteReminders': ForgetMeKnot.reminders, 'Reload': true}, function(){});
 	    });
