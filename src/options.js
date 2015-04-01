@@ -4,27 +4,40 @@ var ForgetMeKnot = {
 
     reminders: {},
     hideHelp: false,
+    delete_ids: [],
 
-	// TODO: Make lastTriggered persist properly 
+    // TODO: Make saving (esp. changes, i.e. edits, not add/delete) work
 	// TODO: Record a YouTube video and link from there
 	// TODO: Make the popup show (only) the matching reminders for this page
 	// TODO: Make the popup update when you switch tabs with it open
-	// TODO: Make the delete buttons actually work
 	// TODO: Insert Google Analytics for various pages/events
+
+    saveRemindersFromTable: function()
+    {
+        ForgetMeKnot.getRemindersFromTable($("#reminders_table"));
+        chrome.storage.sync.set({'SiteReminders': ForgetMeKnot.reminders, 'Reload': true}, function(){});
+    },
 
     makeTableRow: function (table, id)
     {
 	    // Make a row in the table for this reminder 
-	    table.append('<tr id="row_' + id +'">' + 
+	    table.append('<tr class="row" id="row_' + id +'">' + 
 		'<td><div class="save button button_remove" id="button_remove_' + id + '"><img src="images/remove.png" class="small_image_button"/></div></td>' + 
 		'<td><select class="save select_match_type" id="select_match_type_' + id + '">' +
 		    '<option value="title">Title</option>' + 
 		    '<option value="URL">URL</option>' +
 		'</select></td>' +
-		'<td><input class="save input_match" id="input_match_' + id + '"/><button class="button_get_current" id="button_get_current_' + id + '">&lt;</button></td>' +
-		'<td><input class="save input_text" id="input_text_' + id + '"/></td>' +
-		'<td><input class="save input_title" id="input_title_' + id + '"/></td>' +
-		'<td><input class="save input_frequency" id="input_frequency_' + id + '" min="1" max="9999" maxlength="4" type="number"/>' +
+		'<td><input class="save input_match" id="input_match_' + id + '"/></td>' +
+
+		'<td><div id="combo_' + id + '" class="combo comboNormal">' + 
+            '<div><input class="save input_title" id="input_title_' + id + '"/></div>' + 
+            '<div><textarea rows="1" cols="40" class="save input_text" id="input_text_' + id + '"/></div>' + 
+        '</div></td>' +
+        
+
+//		'<td><textarea rows="1" cols="30" class="save input_text" id="input_text_' + id + '"/></td>' +
+//		'<td><input class="save input_title" id="input_title_' + id + '"/></td>' +
+		'<td class="td_frequency"><input class="save input_frequency" id="input_frequency_' + id + '" min="1" max="9999" maxlength="4" type="number"/>' +
 		'<select class="save select_freq_type" id="select_freq_type_' + id + '">' + 
 		    '<option value="1">seconds</option>' + 
 		    '<option value="60">minutes</option>' + 
@@ -38,8 +51,8 @@ var ForgetMeKnot = {
 
 	    $(".select_match_type").attr("title", "How to match tabs against the pattern");
 
-	    $(".input_match").attr("placeholder", "Regex pattern");
-	    $(".input_match").attr("title", "Regex pattern to check when changing tabs");
+	    $(".input_match").attr("placeholder", "Pattern");
+	    $(".input_match").attr("title", "Pattern to check when changing tabs");
 	    $(".input_text").attr("placeholder", "Reminder text");
 	    $(".input_text").attr("title", "Reminder to pop up for matching URLs");
 	    $(".input_title").attr("placeholder", "Reminder title");
@@ -54,16 +67,13 @@ var ForgetMeKnot = {
 	    $('.button_remove').click(function(){
     		// Get reminder ID based on button_remove_ID
     		var id = parseReminderID($(this).attr("id"), "button_remove_");
-    
-            // TODO: Consolidate these two lines into a function?
-    		console.log("reminders before", ForgetMeKnot.reminders);
-    		// TODO: Is this necessary? ForgetMeKnot.getRemindersFromTable($("#reminders_table"));
-    		console.log("reminders after get", ForgetMeKnot.reminders);
+   
+            ForgetMeKnot.delete_ids.push(id);
 
-        	ForgetMeKnot.reminders[id].deleted = true;
     		var row_id = "#row_" + id;
-    		$(row_id).hide("slow");
-            $("#button_remove_" +id).change();
+    		$(row_id).hide("fast");
+            ForgetMeKnot.saveRemindersFromTable();
+            // $("#button_remove_" +id).change();
 
     		// TODO: Does the button_remove.change() above get rid of the need for this? chrome.storage.sync.set({'SiteReminders': ForgetMeKnot.reminders, 'Reload': true}, function(){});
 	    });
@@ -81,13 +91,21 @@ var ForgetMeKnot = {
         		$(row_id).removeClass("pendingDelete");
 	    });
 
+/** TODO: Delete         // TODO: Comment
+        $(".row").hover(function(){
+            var id = parseReminderID($(this).attr("id"), "row_");
+            $("#combo_" + id).removeClass("comboNormal");
+            $("#combo_" + id).addClass("comboFocussed");
+        }, function(){
+            var id = parseReminderID($(this).attr("id"), "row_");
+            $("#combo_" + id).removeClass("comboFocussed");
+            $("#combo_" + id).addClass("comboNormal");
+        }); ***/
+
 	    // Save whenever anything changes
 	    $(".save").unbind("change");
 	    $(".save").bind("change", function(){
-            // TODO: Consolidate these two lines into a function?
-            ForgetMeKnot.getRemindersFromTable($("#reminders_table"));
-            console.log("saving", ForgetMeKnot.reminders);
-            chrome.storage.sync.set({'SiteReminders': ForgetMeKnot.reminders, 'Reload': true}, function(){});
+            ForgetMeKnot.saveRemindersFromTable();
 	    });
 
 	    // Change tooltip of 'get current' button and reminder text based on match type
@@ -95,29 +113,21 @@ var ForgetMeKnot = {
 	    $('.select_match_type').change(function(){
             // Get reminder ID based on select_match_type_ID
             var id = parseReminderID($(this).attr('id'), 'select_match_type_');
-            $("#button_get_current_" + id).attr("title", "Get " + $(this).val() + " of currently selected tab");
             $("#input_text_" + id).attr("title", "Reminder to pop up for matching " + $(this).val() + "s");
 	    });
 
 	    // Trigger the above to update tooltips now
 	    $('.select_match_type').change();
 
-		// Bind "get current" button to get current URL or title
-		$('.button_get_current').unbind('click');
-		$('.button_get_current').click(function(){
-
-            // Get reminder ID based on button_get_current_ID 
-            var id = parseReminderID($(this).attr('id'), 'button_get_current_');
-
-            var matchType = $("#select_match_type_" + id).val();
-
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-                if(tabs.length > 0)
-                {
-                $("#input_match_" + id).val(matchType == 'title' ? tabs[0].title : tabs[0].url);
-                }
-            });
-	    });
+        // More room for inputting text
+        $('.input_text').unbind('focus');
+        $('.input_text').bind('focus', function(){
+            this.rows = 4;
+        });
+        $('.input_text').unbind('blur');
+        $('.input_text').bind('blur', function(){
+            this.rows = 1;
+        });
 
 	    // Annoying manual handling of input type="number"
 	    $(".input_frequency").each(function(){
@@ -134,6 +144,7 @@ var ForgetMeKnot = {
     init: function(){
 
         chrome.storage.sync.get('SiteReminders', function(value) { 
+            console.log("loading", value['SiteReminders']);
             ForgetMeKnot.reminders = value['SiteReminders'] || {};
             for(var id in ForgetMeKnot.reminders)
             {
@@ -161,6 +172,9 @@ var ForgetMeKnot = {
             }
         });
 
+        $("#add_example_1").bind("click", ForgetMeKnot.addExampleOne);
+        $("#add_example_2").bind("click", ForgetMeKnot.addExampleTwo);
+
         $("#got_it").bind("click", function(){
             $("#help_text").hide("slow");
             this.hideHelp = true;
@@ -181,7 +195,7 @@ var ForgetMeKnot = {
             empty_row = $('#reminders_table tr:last .input_text').val() == ''
 
             // Reuse empty rows, rather than adding again.
-            if(empty_row)
+            if(false && empty_row)
             {
                 // Get ID of empty input_match in empty last row
                 var input_match_id = $('#reminders_table tr:last .input_match').attr("id");
@@ -190,7 +204,7 @@ var ForgetMeKnot = {
             }
             else
             {
-                id = generateGuid(); // in common.js
+                id = generateReminderID(); // in common.js
                 ForgetMeKnot.makeTableRow($("#reminders_table"), id);
             }
 
@@ -199,17 +213,40 @@ var ForgetMeKnot = {
             chrome.tabs.query({active: true, currentWindow: true}, function(tabs){ if(tabs.length > 0){input_match.val(tabs[0].title)}});
 
             $("#select_match_type_" + id).val("title"); 
-            $("#input_title_" + id).val("Forget Me Knot!");
+            // $("#input_title_" + id).val("Forget Me Knot!");
             $("#input_frequency_" + id).val(30);
             $("#select_freq_type_" + id).val(60); // i.e. minutes
 
             // Go into the row
-            $("#input_text_" + id).focus();
+            $("#input_title_" + id).focus();
 
             // TODO: Show a tooltip or similar if you're being prompted to edit existing empty rather than create new
 
         });
 
+    },
+
+    addExampleOne: function()
+    {
+        ForgetMeKnot.addExampleRow('title', 'XKCD for Jean', 'xkcd', 'Email physics-related XKCD comics to Jean for a laugh', 30, 86400);
+    },
+
+    addExampleTwo: function()
+    {
+        ForgetMeKnot.addExampleRow('title', 'Is Zac on LinkedIn yet?', 'LinkedIn', 'See if Zac has created an account yet', 3, 7 * 86400);
+    },
+
+    addExampleRow: function(match_type, title, match, text, frequency, freq_type)
+    {           
+        id = generateReminderID(); // in common.js
+        ForgetMeKnot.makeTableRow($("#reminders_table"), id);
+        $("#select_match_type_" + id).val(match_type); 
+        $("#input_title_" + id).val(title);
+        $("#input_match_" + id).val(match);
+        $("#input_text_" + id).val(text);
+        $("#input_frequency_" + id).val(frequency);
+        $("#select_freq_type_" + id).val(freq_type);
+        ForgetMeKnot.saveRemindersFromTable();
     },
 
     getRemindersFromTable: function (table)
@@ -224,15 +261,18 @@ var ForgetMeKnot = {
             // Get reminder ID based on row_ID 
 		    id = parseReminderID(rows[i].id, 'row_'); 
 
-    		if (id in ForgetMeKnot.reminders && ForgetMeKnot.reminders[id].deleted)
-    		{
-    		    console.log("deleting a reminder" + id);
-    		    delete ForgetMeKnot.reminders[id];
-    		    continue;
-    		}
+    		if(id in ForgetMeKnot.delete_ids)
+            {
+    		    if (id in ForgetMeKnot.reminders) 
+                {
+                    delete ForgetMeKnot.reminders[id];
+                }
+                // TODO: Make deletes work
+                continue;
+            }
 
     		// Create new reminder
-    		if(!(id in ForgetMeKnot.reminders))
+            if(!(id in ForgetMeKnot.reminders))
     		{
     		    ForgetMeKnot.reminders[id] = {};
     		    ForgetMeKnot.reminders[id]['id'] = id;

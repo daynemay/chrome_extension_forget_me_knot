@@ -1,17 +1,6 @@
-/** Confession: this is lifted directly from a Google search on 
-  * "javascript generate GUID". I haven't rigorously tested it, but I doubt the
-  * consequences of failure are sufficiently drastic to lose sleep over it.
-  */
-function generateGuid() {
-  var result, i, j;
-  result = '';
-  for(j=0; j<32; j++) {
-    if( j == 8 || j == 12|| j == 16|| j == 20) 
-      result = result + '-';
-    i = Math.floor(Math.random()*16).toString(16).toUpperCase();
-    result = result + i;
-  }
-  return result;
+// We should be safe from the same user generating multiple reminders in the same millisecond.
+function generateReminderID(){
+  return new Date().getTime().toString();
 }
 
 /*  If my_input_id is "input_match_1234", then:

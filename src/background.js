@@ -66,7 +66,7 @@ function checkForSiteReminder(tab)
             reminder.reminderTitle,                 // The title.
             reminder.reminderText                   // The body.
         );
-        notification = window.webkitNotifications.createHTMLNotification("popup.html");
+
         notification.show()        
         reminder.lastTriggered = now;
         saveReminder(reminder);
